@@ -1,6 +1,6 @@
 import keyboard
 from time import time, gmtime, strftime
-from os import system, mkdir, path
+import os
 
 timer = 0
 ticker = 0
@@ -121,7 +121,7 @@ while timing:
         secondTimer = time()
         ticker += 1
 
-        system("cls")
+        os.system("cls")
         
         activity = "Code" if sessionTimerRunning else "Break"
 
@@ -146,5 +146,5 @@ currentMonth = strftime("%B", currentDate)
 
 datePath = f"{currentYear}\\{currentMonth}"
 
-if not path.exists(filePath + datePath):
-    mkdir(filePath + datePath) #TODO this isn't working for some reason
+if not os.path.exists(filePath + datePath):
+    os.makedirs(filePath + datePath)
