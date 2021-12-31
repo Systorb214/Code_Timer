@@ -1,0 +1,17 @@
+In this program, hitting F5 starts and stops a timer.
+Each time the timer stops, the time elapsed will be put into a variable.
+On the first keypress, the first coding session timer will start.
+On the second keypress, the first coding timer will stop, and the first break timer will start.
+this pattern will continue with each new keypress.
+
+Pressing F6 will end whatever timer is ticking, and compile all code and break variables into a
+readable format, which will be displayed to the user.
+example:
+    #Total coding time: 4 hours and 12 minutes
+    #session 1 time: 2 hours and 12 minutes
+    #break 1 time: 31 minutes
+    #session 2 time: 2 hours
+
+TODO:
+    fix up the text formatting
+    write the session info into files and folders based on the current date.
