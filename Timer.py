@@ -1,6 +1,7 @@
 import keyboard
-from time import time, gmtime, strftime
 import os
+import xml.etree.ElementTree as ET
+from time import time, gmtime, strftime
 
 timer = 0
 ticker = 0
@@ -137,14 +138,26 @@ for i in range(len(breakTimes)):
     print(f"Break {i+1}: {breakTimes[i]}.")
 
 #Storing session data in files
-filePath = "C:\\Users\\Clayton\\projects\\Code_Timer\\Coding_Sessions\\"
-
 currentDate = gmtime()
 
 currentYear = strftime("%Y", currentDate)
 currentMonth = strftime("%B", currentDate)
+currentDay = strftime("%d", currentDate)
 
-datePath = f"{currentYear}\\{currentMonth}"
+filePath = f"C:\\Users\\Clayton\\projects\\Code_Timer\\Coding_Sessions\\{currentYear}\\"
 
-if not os.path.exists(filePath + datePath):
-    os.makedirs(filePath + datePath)
+if not os.path.exists(filePath):
+    os.mkdir(filePath)
+
+tree = None
+
+try:
+    tree = ET.parse(filePath + currentMonth)
+except ET.ParseError:
+    tree = ET.ElementTree()
+
+day = ET.Element(currentDay)
+
+tree.find(currentDay)
+
+tree.write(f"{currentMonth}.xml")
