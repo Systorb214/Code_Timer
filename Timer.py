@@ -5,8 +5,9 @@ from time import time, gmtime, strftime
 
 timer = 0
 ticker = 0
-sessionTimes = []
-breakTimes = []
+totalTime = 0
+sessionTimes = {}
+breakTimes = {}
 sessionTimerRunning = True
 timing = False
 
@@ -73,20 +74,24 @@ toggleTimer = "page down"
 #control the timer variable and store elapsed time into lists
 def ControlTimer(event):
     global sessionTimerRunning
+    global totalTime
     global timer
     global ticker
     global timing
+    sessionCount = f"Session {(len(sessionTimes) + 1)}"
+    breakCount = f"Break {(len(breakTimes) + 1)}"
     elapsed = time() - timer
 
     if event.name == toggleTimerType:
         if sessionTimerRunning:
             
-            sessionTimes.append(ReadableTime(elapsed))
+            sessionTimes[sessionCount] = ReadableTime(elapsed)
+            totalTime += elapsed
 
             sessionTimerRunning = False
         elif not sessionTimerRunning:
             
-            if timer != 0: breakTimes.append(ReadableTime(elapsed))
+            if timer != 0: breakTimes[breakCount] = ReadableTime(elapsed)
 
             sessionTimerRunning = True
 
@@ -96,7 +101,8 @@ def ControlTimer(event):
         if timing:
             if sessionTimerRunning:
                 
-                sessionTimes.append(ReadableTime(elapsed))
+                sessionTimes[sessionCount] = ReadableTime(elapsed)
+                totalTime += elapsed
 
                 sessionTimerRunning = False
 
@@ -129,13 +135,13 @@ while timing:
         print(f"{activity} time: {ReadableTime(ticker)}")
 
 #Print the times elapsed
-for i in range(len(sessionTimes)):
-    
-    print(f"Session {i+1}: {sessionTimes[i]}.")
+print("Total time spent coding today: " + ReadableTime(totalTime))
 
-for i in range(len(breakTimes)):
+for count, timed in sessionTimes.items():
+    print(f"{count}: {timed}.")
 
-    print(f"Break {i+1}: {breakTimes[i]}.")
+for count, timed in breakTimes.items():
+    print(f"{count}: {timed}.")
 
 #Storing session data in files
 currentDate = gmtime()
@@ -153,11 +159,26 @@ tree = None
 
 try:
     tree = ET.parse(filePath + currentMonth)
-except ET.ParseError:
-    tree = ET.ElementTree()
+    root = tree.getroot()
+except:
+    root = ET.Element("Data")
+    tree = ET.ElementTree(root)
 
-day = ET.Element(currentDay)
+dayElement = tree.find(currentDay)
 
-tree.find(currentDay)
+if dayElement == None:
+    dayElement = ET.Element(currentDay)
+    root.append(dayElement)
+    
+for count, timed in sessionTimes.items():
+    sessionTime = dayElement.find(count)
+
+    if sessionTime == None:
+        sessionTime = ET.Element(count)
+        dayElement.append(sessionTime)
+
+        sessionTime.text = timed
+        #IDEA: add two elements to each session: one in string format, the other in int.
+    
 
 tree.write(f"{currentMonth}.xml")
