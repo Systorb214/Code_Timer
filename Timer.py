@@ -80,18 +80,19 @@ def ControlTimer(event):
     global timing
     sessionCount = f"Session {(len(sessionTimes) + 1)}"
     breakCount = f"Break {(len(breakTimes) + 1)}"
-    elapsed = time() - timer
+    elapsed = int(time() - timer)
+    elapsedStr = ReadableTime(elapsed)
 
     if event.name == toggleTimerType:
         if sessionTimerRunning:
             
-            sessionTimes[sessionCount] = ReadableTime(elapsed)
+            sessionTimes[sessionCount] = (elapsed, elapsedStr)
             totalTime += elapsed
 
             sessionTimerRunning = False
         elif not sessionTimerRunning:
             
-            if timer != 0: breakTimes[breakCount] = ReadableTime(elapsed)
+            if timer != 0: breakTimes[breakCount] = (elapsed, elapsedStr)
 
             sessionTimerRunning = True
 
@@ -101,7 +102,7 @@ def ControlTimer(event):
         if timing:
             if sessionTimerRunning:
                 
-                sessionTimes[sessionCount] = ReadableTime(elapsed)
+                sessionTimes[sessionCount] = (elapsed, elapsedStr)
                 totalTime += elapsed
 
                 sessionTimerRunning = False
@@ -138,10 +139,10 @@ while timing:
 print("Total time spent coding today: " + ReadableTime(totalTime))
 
 for count, timed in sessionTimes.items():
-    print(f"{count}: {timed}.")
+    print(f"{count}: {timed[1]}.")
 
 for count, timed in breakTimes.items():
-    print(f"{count}: {timed}.")
+    print(f"{count}: {timed[1]}.")
 
 #Storing session data in files
 currentDate = gmtime()
@@ -171,14 +172,15 @@ if dayElement == None:
     root.append(dayElement)
     
 for count, timed in sessionTimes.items():
-    sessionTime = dayElement.find(count)
+    sessionTime = ET.Element(count)
+    dayElement.append(sessionTime)
 
-    if sessionTime == None:
-        sessionTime = ET.Element(count)
-        dayElement.append(sessionTime)
+    stringData = ET.Element("StringData")
+    intData = ET.Element("IntData")
 
-        sessionTime.text = timed
-        #IDEA: add two elements to each session: one in string format, the other in int.
-    
+    sessionTime.append(stringData)
+    sessionTime.append(intData)
+    stringData.text = timed[1]
+    intData.text = str(timed[0])
 
-tree.write(f"{currentMonth}.xml")
+tree.write(filePath + currentMonth + ".xml")

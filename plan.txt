@@ -13,5 +13,11 @@ example:
     #session 2 time: 2 hours
 
 TODO:
-    fix up the text formatting
-    write the session info into files and folders based on the current date.
+    Figure out why the timer takes so long to start.
+    If page up is pressed before the timer starts, the timer variable is not updated, and a large number is generated.
+
+IDEAS: 
+    If the current day in the xml file is already there, read and append the extra session data to the end.
+
+    Import the created files into a line graph program, which can be shown on a future portfolio website.
+    To do this, the data should be in a format that a line graph could read, like an int.
