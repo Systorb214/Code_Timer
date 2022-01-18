@@ -1,186 +1,79 @@
-import keyboard
-import os
-import xml.etree.ElementTree as ET
-from time import time, gmtime, strftime
+from time import time
 
-timer = 0
-ticker = 0
-totalTime = 0
-sessionTimes = {}
-breakTimes = {}
-sessionTimerRunning = True
-timing = False
-
-def ReadableTime(seconds):
-
-    seconds = int(seconds)
-    minutes = 0
-    hours = 0
-    while seconds > 60:
-        seconds -= 60
-        minutes += 1
-        
-        while minutes > 60:
-            minutes -= 60
-            hours += 1
-
-    info = ""
-    
-    if hours > 0:
-
-        info += f"{hours} hours"
-
-        if minutes > 0:
-            info += f" and {minutes} minutes"
-    elif minutes > 0:
-
-        info += f"{minutes} minutes"
-
-        if seconds > 0:
-            info += f" and {seconds} seconds"
-    else:
-        info += f"{seconds} seconds"
-
-    return info
-
-def GetTime(stringTime):
+class Timer:
     """
-    Gets a time (in seconds) from the string parameter. input something like "30 minutes" or "2 hours."
+    Has some basic time-related methods.
     """
-    if type(stringTime) != str:
-        return None
-    intTime = 0
-    temp = ""
-    for char in stringTime:
-        if char.isdigit():
-            temp += char
-        elif temp != "":
-            intTime = int(temp)
-            break
 
-    if "minute" in stringTime:
-        intTime *= 60
-    elif "hour" in stringTime:
-        intTime *= 3600
-    
-    if intTime != 0:
-        return intTime
-    else:
-        print("Hint: type something like \"30 minutes\" or \"2 hours.\"")
+    def __init__(self):
+        self._past = time()
 
-toggleTimerType = "page up"
-toggleTimer = "page down"
+    def Update(self):
+        self._past = time()
 
-#control the timer variable and store elapsed time into lists
-def ControlTimer(event):
-    global sessionTimerRunning
-    global totalTime
-    global timer
-    global ticker
-    global timing
-    sessionCount = f"Session {(len(sessionTimes) + 1)}"
-    breakCount = f"Break {(len(breakTimes) + 1)}"
-    elapsed = int(time() - timer)
-    elapsedStr = ReadableTime(elapsed)
-
-    if event.name == toggleTimerType:
-        if sessionTimerRunning:
-            
-            sessionTimes[sessionCount] = (elapsed, elapsedStr)
-            totalTime += elapsed
-
-            sessionTimerRunning = False
-        elif not sessionTimerRunning:
-            
-            if timer != 0: breakTimes[breakCount] = (elapsed, elapsedStr)
-
-            sessionTimerRunning = True
-
-        timer = time()
-        ticker = 0
-    elif event.name == toggleTimer:
-        if timing:
-            if sessionTimerRunning:
-                
-                sessionTimes[sessionCount] = (elapsed, elapsedStr)
-                totalTime += elapsed
-
-                sessionTimerRunning = False
-
-            timing = False
+    def SecondPassed(self):
+        """
+        Returns true if a second has gone by.
+        """
+        if time() - self._past > 1:
+            self.Update()
+            return True
         else:
-            timing = True
-            timer = time()
-        ticker = 0
+            return False
 
-keyboard.on_press(ControlTimer)
+    def ReadableTime(self, seconds):
 
-secondTimer = time()
+        seconds = int(seconds)
+        minutes = 0
+        hours = 0
+        while seconds > 60:
+            seconds -= 60
+            minutes += 1
+            
+            while minutes > 60:
+                minutes -= 60
+                hours += 1
 
-#intro
-print(f"Push \"{toggleTimerType}\" to toggle between the session timer and the break timer.\nOnce you're \
-finished coding for the day, press \"{toggleTimer}\".\nPress \"{toggleTimer}\" to begin!")
-
-while not timing:
-    continue
-
-while timing:
-    if time() > secondTimer+1:
-        secondTimer = time()
-        ticker += 1
-
-        os.system("cls")
+        info = ""
         
-        activity = "Code" if sessionTimerRunning else "Break"
+        if hours > 0:
 
-        print(f"{activity} time: {ReadableTime(ticker)}")
+            info += f"{hours} hours"
 
-#Print the times elapsed
-print("Total time spent coding today: " + ReadableTime(totalTime))
+            if minutes > 0:
+                info += f" and {minutes} minutes"
+        elif minutes > 0:
 
-for count, timed in sessionTimes.items():
-    print(f"{count}: {timed[1]}.")
+            info += f"{minutes} minutes"
 
-for count, timed in breakTimes.items():
-    print(f"{count}: {timed[1]}.")
+            if seconds > 0:
+                info += f" and {seconds} seconds"
+        else:
+            info += f"{seconds} seconds"
 
-#Storing session data in files
-currentDate = gmtime()
+        return info
 
-currentYear = strftime("%Y", currentDate)
-currentMonth = strftime("%B", currentDate)
-currentDay = strftime("%d", currentDate)
+    def GetTime(self, stringTime):
+        """
+        Gets a time (in seconds) from the string parameter. input something like "30 minutes" or "2 hours."
+        """
+        if type(stringTime) != str:
+            return None
+        intTime = 0
+        temp = ""
+        for char in stringTime:
+            if char.isdigit():
+                temp += char
+            elif temp != "":
+                intTime = int(temp)
+                break
 
-filePath = f"C:\\Users\\Clayton\\projects\\Code_Timer\\Coding_Sessions\\{currentYear}\\"
-
-if not os.path.exists(filePath):
-    os.mkdir(filePath)
-
-tree = None
-
-try:
-    tree = ET.parse(filePath + currentMonth)
-    root = tree.getroot()
-except:
-    root = ET.Element("Data")
-    tree = ET.ElementTree(root)
-
-dayElement = tree.find(currentDay)
-
-if dayElement == None:
-    dayElement = ET.Element(currentDay)
-    root.append(dayElement)
-    
-for count, timed in sessionTimes.items():
-    sessionTime = ET.Element(count)
-    dayElement.append(sessionTime)
-
-    stringData = ET.Element("StringData")
-    intData = ET.Element("IntData")
-
-    sessionTime.append(stringData)
-    sessionTime.append(intData)
-    stringData.text = timed[1]
-    intData.text = str(timed[0])
-
-tree.write(filePath + currentMonth + ".xml")
+        if "minute" in stringTime:
+            intTime *= 60
+        elif "hour" in stringTime:
+            intTime *= 3600
+        
+        if intTime != 0:
+            return intTime
+        else:
+            print("Hint: type something like \"30 minutes\" or \"2 hours.\"")

@@ -1,3 +1,7 @@
-Coding_sessions/
-
 *.txt
+
+.vscode
+
+Coding_sessions/*
+
+__pycache__
