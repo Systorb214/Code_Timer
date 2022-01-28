@@ -56,11 +56,9 @@ class Session:
 
             self.root = ET.Element("Data")
             self.tree = ET.ElementTree(self.root)
-            
 
         self.day = None
         #Linear search is faster than a binary search, because to do the latter, a list must first be created using the iter method.
-        #Use findall instead?
         for ele in self.tree.iterfind("./Day"):
             stripped = ele.text.strip().strip("\\n")
             if stripped == currentDay:
@@ -77,19 +75,19 @@ class Session:
         self.codeSessions = {}
         self.breakSessions = {}
 
-        #Loading found session data into dictionaries
+        self.codeCount = 0
+        self.breakCount = 0
+        self.totalSessionTime = 0
+
+        #Getting session and break count
         if dataFound:
             for ele in self.day.iter():
-                if ele == self.day or ele.tag == "IntData" or ele.tag == "StringData":
-                    continue
+                if ele.tag == "Session":
+                    self.codeCount += 1
+                    self.totalSessionTime += int(ele.find("IntData").text)
 
-                data = (int(ele.find("./IntData").text), ele.find("./StringData").text)
-
-                if ele.tag == Session.sessionTypes[0]:
-                    self.codeSessions[ele.tag] = data
-
-                elif ele.tag == Session.sessionTypes[1]:
-                    self.breakSessions[ele.tag] = data
+                elif ele.tag == "Break":
+                    self.breakCount += 1
 
     def __str__(self):
         sessionStr = ""
@@ -101,21 +99,23 @@ class Session:
         return sessionStr
 
     def AddSessionData(self, type, data):
-        codeCount = len(self.codeSessions) + 1
-        breakCount = len(self.breakSessions) + 1
 
         if type == Session.sessionTypes[0]:
-            self.codeSessions[f"{Session.sessionTypes[0]}_{codeCount}"] = data
+            self.codeCount += 1
+            self.totalSessionTime += data[0]
+            self.codeSessions[f"{Session.sessionTypes[0]}_{self.codeCount}"] = data
         elif type == Session.sessionTypes[1]:
-            self.breakSessions[f"{Session.sessionTypes[0]}_{breakCount}"] = data
+            self.breakCount += 1
+            self.breakSessions[f"{Session.sessionTypes[1]}_{self.breakCount}"] = data
         else:
             raise TypeError(type)
 
     def WriteToXML(self):
         session = self.codeSessions
-        for i in range(2):
+        sessionType = Session.sessionTypes[0]
+        for _ in range(2):
             for count, time in session.items():
-                sessionTime = ET.Element(count[:-2])
+                sessionTime = ET.Element(sessionType)
                 sessionTime.text = count
                 self.day.append(sessionTime)
 
@@ -128,6 +128,7 @@ class Session:
                 intData.text = str(time[0])
             
             session = self.breakSessions
+            sessionType = Session.sessionTypes[1]
         
         self.tree.write(self.filename)
 
@@ -137,7 +138,6 @@ class Stopwatch(Timer):
         super().__init__()
         self.coding = True
         self.counter = 0
-        self.totalCodeTime = 0
 
         self.stringTime = ""
         self.session = Session()
@@ -155,7 +155,8 @@ class Stopwatch(Timer):
 
     def Control(self, type):
         if type == "code":
-
+            if self.coding:
+                return
             self.coding = True
 
             if len(self.session.codeSessions) > 0:
@@ -163,12 +164,12 @@ class Stopwatch(Timer):
 
             self.counter = 0
         elif type == "break":
-
+            if not self.coding:
+                return
             self.coding = False
 
             self.session.AddSessionData("Session", (self.counter, self.stringTime))
 
-            self.totalCodeTime += self.counter
             self.counter = 0
         else:
             raise TypeError(type)
@@ -176,11 +177,11 @@ class Stopwatch(Timer):
     def End(self):
         #Append extra code session data
         if self.coding:
-            self.session.AddSessionData("code", (self.counter, self.stringTime))
+            self.session.AddSessionData("Session", (self.counter, self.stringTime))
 
         self.counter = 0
         
-        print(f"{self.session}Total time spent coding today: {self.ReadableTime(self.totalCodeTime)}.")
+        print(f"{self.session}Total time spent coding today: {self.ReadableTime(self.session.totalSessionTime)}.")
 
         self.session.WriteToXML()
 
