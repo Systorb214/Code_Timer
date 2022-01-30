@@ -20,14 +20,14 @@ class WordListener:
             self.string = ""
         else:
             try:
-                keyCh = key.char
+                keyChar = key.char
             except:
                 if key == keyboard.Key.space:
-                    keyCh = ' '
+                    keyChar = ' '
                 else:
-                    keyCh = ''
+                    keyChar = ''
 
-            self.string += keyCh
+            self.string += keyChar
 
 class Session:
 
@@ -40,37 +40,36 @@ class Session:
         currentMonth = strftime("%B", currentDate)
         currentDay = strftime("%d", currentDate)
 
-        self.path = f"C:\\Users\\Clayton\\projects\\Code_Timer\\Coding_Sessions\\{currentYear}\\"
-        self.filename = self.path + currentMonth + ".xml"
+        pathToCurrentYear = f"C:\\Users\\Clayton\\projects\\Code_Timer\\Coding_Sessions\\{currentYear}\\"
+        self.pathToXml = pathToCurrentYear + currentMonth + ".xml"
 
-        dataFound = False
-        if path.exists(self.filename):
-            
-            self.tree = ET.parse(self.filename)
+        if path.exists(self.pathToXml):
+            self.tree = ET.parse(self.pathToXml)
             self.root = self.tree.getroot()
-            dataFound = True
             
         else:
-            if not path.exists(self.path):
-                mkdir(self.path)
+            if not path.exists(pathToCurrentYear):
+                mkdir(pathToCurrentYear)
 
             self.root = ET.Element("Data")
             self.tree = ET.ElementTree(self.root)
 
         self.day = None
-        #Linear search is faster than a binary search, because to do the latter, a list must first be created using the iter method.
+        dayFound = False
+        #searching for the current day in the xml
         for ele in self.tree.iterfind("./Day"):
             stripped = ele.text.strip().strip("\\n")
             if stripped == currentDay:
                 self.day = ele
+                dayFound = True
                 break
         
+        #If there is no day element equal to the current day, create a new one.
         if self.day == None:
             self.day = ET.Element("Day")
             self.day.text = currentDay
             self.root.append(self.day)
-        else:
-            dataFound = True
+            
 
         self.codeSessions = {}
         self.breakSessions = {}
@@ -80,7 +79,7 @@ class Session:
         self.totalSessionTime = 0
 
         #Getting session and break count
-        if dataFound:
+        if dayFound:
             for ele in self.day.iter():
                 if ele.tag == "Session":
                     self.codeCount += 1
@@ -111,26 +110,34 @@ class Session:
             raise TypeError(type)
 
     def WriteToXML(self):
+        #Append the total time of all sessions to the day element
+        ttElement = ET.Element("TotalTime")
+        ttElement.text = self.totalSessionTime
+        self.day.append(ttElement)
+
+        #Loop over the code sessions
         session = self.codeSessions
-        sessionType = Session.sessionTypes[0]
-        for _ in range(2):
+        for i in range(2):
             for count, time in session.items():
-                sessionTime = ET.Element(sessionType)
+                #Add the session element
+                sessionTime = ET.Element(Session.sessionTypes[i])
                 sessionTime.text = count
                 self.day.append(sessionTime)
 
+                #StringData is the session time in string format
                 stringData = ET.Element("StringData")
+                #IntData is the session time in int format
                 intData = ET.Element("IntData")
+                stringData.text = time[1]
+                intData.text = str(time[0])
 
                 sessionTime.append(stringData)
                 sessionTime.append(intData)
-                stringData.text = time[1]
-                intData.text = str(time[0])
             
+            #Switch to break sessions and loop over those
             session = self.breakSessions
-            sessionType = Session.sessionTypes[1]
         
-        self.tree.write(self.filename)
+        self.tree.write(self.pathToXml)
 
 class Stopwatch(Timer):
     
