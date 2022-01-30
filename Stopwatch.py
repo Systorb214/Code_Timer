@@ -5,12 +5,21 @@ from time import gmtime, strftime
 from Timer import Timer
 
 class WordListener:
+    """
+    Provides word functionality for the keyboard listener.
+    """
     
     def __init__(self):
         self.string = ""
+        """The string that WordInput adds characters to."""
+
         self.words = {"start" : False, "stop" : False, "done" : False}
+        """Words to listen for."""
     
     def WordInput(self, key=None):
+        """
+    Adds pressed keys to a string.\nIf enter is pressed and the string matches one of the word listener's words, set that word's value to true.
+        """
         if key == keyboard.Key.enter:
             print(self.string)
 
@@ -81,11 +90,11 @@ class Session:
         #Getting session and break count
         if dayFound:
             for ele in self.day.iter():
-                if ele.tag == "Session":
+                if ele.tag == Session.sessionTypes[0]:
                     self.codeCount += 1
                     self.totalSessionTime += int(ele.find("IntData").text)
 
-                elif ele.tag == "Break":
+                elif ele.tag == Session.sessionTypes[1]:
                     self.breakCount += 1
 
     def __str__(self):
@@ -97,17 +106,15 @@ class Session:
 
         return sessionStr
 
-    def AddSessionData(self, type, data):
+    def AddSessionData(self, codeSession, data):
 
-        if type == Session.sessionTypes[0]:
+        if codeSession:
             self.codeCount += 1
             self.totalSessionTime += data[0]
             self.codeSessions[f"{Session.sessionTypes[0]}_{self.codeCount}"] = data
-        elif type == Session.sessionTypes[1]:
+        else:
             self.breakCount += 1
             self.breakSessions[f"{Session.sessionTypes[1]}_{self.breakCount}"] = data
-        else:
-            raise TypeError(type)
 
     def WriteToXML(self):
         #Append the total time of all sessions to the day element
@@ -160,31 +167,29 @@ class Stopwatch(Timer):
         system("cls")
         print(("coded for " if self.coding else "rested for ") + self.stringTime)
 
-    def Control(self, type):
-        if type == "code":
+    def Control(self, startCoding):
+        if startCoding:
             if self.coding:
                 return
             self.coding = True
 
             if len(self.session.codeSessions) > 0:
-                self.session.AddSessionData("Break", (self.counter, self.stringTime))
+                self.session.AddSessionData(False, (self.counter, self.stringTime))
 
             self.counter = 0
-        elif type == "break":
+        else:
             if not self.coding:
                 return
             self.coding = False
 
-            self.session.AddSessionData("Session", (self.counter, self.stringTime))
+            self.session.AddSessionData(True, (self.counter, self.stringTime))
 
             self.counter = 0
-        else:
-            raise TypeError(type)
 
     def End(self):
         #Append extra code session data
         if self.coding:
-            self.session.AddSessionData("Session", (self.counter, self.stringTime))
+            self.session.AddSessionData(True, (self.counter, self.stringTime))
 
         self.counter = 0
         
@@ -198,9 +203,10 @@ class Stopwatch(Timer):
 stopWatch = Stopwatch()
 start = "start"
 stop = "stop"
+done = "done"
 
 #intro
-while input(f"Type \"{start}\" to start the first coding session. When it's time for a break, enter \"{stop}\"\nWhen you are finished for the day, enter \"done.\"\n\n") != start:
+while input(f"Type \"{start}\" to start the first coding session. When it's time for a break, enter \"{stop}\"\nWhen you are finished for the day, enter \"{done}\"\n\n") != start:
     system("cls")
 
 commands = WordListener()
@@ -212,14 +218,14 @@ while True:
     stopWatch.Count()
 
     if commands.words[start]:
-        stopWatch.Control("code")
+        stopWatch.Control(True)
         commands.words[start] = False
 
     elif commands.words[stop]:
-        stopWatch.Control("break")
+        stopWatch.Control(False)
         commands.words[stop] = False
 
-    elif commands.words["done"]:
+    elif commands.words[done]:
         lstnr.stop()
         stopWatch.End()
         quit()
