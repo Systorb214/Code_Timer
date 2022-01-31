@@ -58,22 +58,26 @@ class Timer:
         Gets a time (in seconds) from the string parameter. input something like "30 minutes" or "2 hours."
         """
         if type(stringTime) != str:
-            return None
-        intTime = 0
+            raise TypeError(stringTime)
+
+        totalInt = 0
         temp = ""
         for char in stringTime:
             if char.isdigit():
                 temp += char
             elif temp != "":
-                intTime = int(temp)
+                totalInt = int(temp)
                 break
+        
+        minInt = totalInt * 60
+        hourInt = totalInt * 3600
 
         if "minute" in stringTime:
-            intTime *= 60
-        elif "hour" in stringTime:
-            intTime *= 3600
+            totalInt += minInt
+        if "hour" in stringTime:
+            totalInt += hourInt
         
-        if intTime != 0:
-            return intTime
+        if totalInt != 0:
+            return totalInt
         else:
             print("Hint: type something like \"30 minutes\" or \"2 hours.\"")

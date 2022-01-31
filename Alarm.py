@@ -1,4 +1,5 @@
 from Timer import Timer
 
 class Alarm(Timer):
-    pass
+    def __init__(self, alarmTime=3600):
+        self.alarmTime = alarmTime
