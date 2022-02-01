@@ -7,19 +7,21 @@ class Timer:
 
     def __init__(self):
         self._past = time()
-
-    def Update(self):
-        self._past = time()
+        self.counter = 0
 
     def SecondPassed(self):
         """
         Returns true if a second has gone by.
         """
         if time() - self._past > 1:
-            self.Update()
+            self._past = time()
             return True
         else:
             return False
+
+    def Count(self):
+        if self.SecondPassed():
+            self.counter += 1
 
     def ReadableTime(self, seconds):
 

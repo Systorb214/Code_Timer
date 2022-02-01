@@ -1,5 +1,5 @@
 from Timer import Timer
-import playsound
+from playsound import playsound
 
 class Alarm(Timer):
 
@@ -7,3 +7,7 @@ class Alarm(Timer):
     stopSound = "./Sounds/Stop_coding.mp3"
     def __init__(self, alarmTime=3600):
         self.alarmTime = alarmTime
+
+    def CheckTime(self):
+        pass
+            
