@@ -63,7 +63,7 @@ class Session:
         currentMonth = strftime("%B", currentDate)
         currentDay = strftime("%d", currentDate)
 
-        pathToCurrentYear = f"~/Coding_Sessions/{currentYear}/"
+        pathToCurrentYear = f"./Coding_Sessions/{currentYear}/"
         self.pathToXml = pathToCurrentYear + currentMonth + ".xml"
 
         if path.exists(self.pathToXml):
@@ -132,7 +132,9 @@ class Session:
     def WriteToXML(self):
         #Append the total time of all sessions to the day element
         ttElement = ET.Element("TotalTime")
-        ttElement.text = self.totalSessionTime
+
+        #Anything written to the xml MUST BE A STRING!
+        ttElement.text = str(self.totalSessionTime)
         self.day.append(ttElement)
 
         #Loop over the code sessions
@@ -156,8 +158,7 @@ class Session:
             
             #Switch to break sessions and loop over those
             session = self.breakSessions
-        
-        #BUG: This isn't working
+
         self.tree.write(self.pathToXml)
 
 
