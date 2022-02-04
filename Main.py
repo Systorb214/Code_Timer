@@ -1,8 +1,8 @@
 from time import gmtime, strftime
-from os import path, mkdir
+from os import system, path, mkdir
 import xml.etree.ElementTree as ET
 from pynput import keyboard
-from Stopwatch import Stopwatch, system
+from Stopwatch import Stopwatch
 from Alarm import Alarm
 
 class WordListener:
@@ -164,7 +164,8 @@ class Session:
 
 stopWatch = Stopwatch()
 session = Session()
-coding = False
+coding = True
+status = "Coding"
 
 #intro
 while input(f"Type \"start\" to start the first coding session. When it's time for a break, enter \"stop\"\nWhen you are finished for the day, enter \"done\"\n\n") != "start":
@@ -177,14 +178,13 @@ lstnr = keyboard.Listener(on_press=commands.WordInput)
 print("Beginning session!")
 lstnr.start()
 while True:
-    stopWatch.Count()
-    if stopWatch.MinutePassed():
-        stopWatch.ReadableTime(stopWatch.counter)
+    stopWatch.Count(status)
 
     if commands.WordFound("start"):
         if coding:
             continue
         coding = True
+        status = "Coding"
         stopWatch.Reset()
         print("Beginning session!")
 
@@ -192,10 +192,11 @@ while True:
             session.AddSessionData(False, (stopWatch.resultTime, stopWatch.stringTime))
 
     elif commands.WordFound("stop"):
-
+        if not coding:
+            continue
         coding = False
+        status = "Taking a break"
         stopWatch.Reset()
-        print("Taking a break...")
     
         session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
 

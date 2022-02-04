@@ -22,6 +22,7 @@ class Timer:
     def Count(self):
         if self.SecondPassed():
             self.counter += 1
+            return True
 
     def ReadableTime(self, seconds):
 
