@@ -24,6 +24,9 @@ class Timer:
             self.counter += 1
             return True
 
+    def Reset(self):
+        self.counter = 0
+
     def ReadableTime(self, seconds):
 
         seconds = int(seconds)

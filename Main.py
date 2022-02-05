@@ -166,6 +166,7 @@ class Session:
 
 
 stopWatch = Stopwatch()
+sessionAlarm = Alarm("./Sounds/Start_coding.mp3")
 session = Session()
 coding = True
 status = "Coding"
