@@ -63,7 +63,8 @@ class Session:
         currentMonth = strftime("%B", currentDate)
         currentDay = strftime("%d", currentDate)
 
-        pathToCurrentYear = f"./Coding_Sessions/{currentYear}/"
+        sessionsPath = "./Coding_Sessions"
+        pathToCurrentYear = f"{sessionsPath}/{currentYear}/"
         self.pathToXml = pathToCurrentYear + currentMonth + ".xml"
 
         if path.exists(self.pathToXml):
@@ -71,6 +72,8 @@ class Session:
             self.root = self.tree.getroot()
             
         else:
+            if not path.exists(sessionsPath):
+                mkdir(sessionsPath)
             if not path.exists(pathToCurrentYear):
                 mkdir(pathToCurrentYear)
 
