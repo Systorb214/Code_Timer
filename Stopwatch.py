@@ -15,8 +15,10 @@ class Stopwatch(Timer):
             if self.counter % 2 == 0:
                 dots = ".."
 
-            #system("cls")
+            system("cls")
             print(status + dots)
+            return True
+        return False
         
 
     def MinutePassed(self):

@@ -167,23 +167,20 @@ class Session:
 
 #a1 = threading.Thread(target=sessionAlarm.Tick)
 
-timers = [Stopwatch(), Alarm("./Sounds/Start_coding.mp3")]#, Alarm( , alarmTime=1200), Alarm( , alarmTime=20)] TODO: add 20 min alarm sound
 session = Session()
+timers = [Alarm("./Sounds/Start_coding.mp3"), Alarm("./Sounds/Stop_coding.mp3"), Alarm("./Sounds/Look_away.mp3", alarmTime=1200), Alarm("./Sounds/Look_back.mp3", alarmTime=20)]
+eyeAlarm = timers[2]
+sessionAlarm = timers[1]
+stopWatch = Stopwatch()
 coding = True
-status = "Coding"
 
 def ResetAll():
     for timer in timers:
         timer.Reset()
 
-def CountAll():
-    timers[0].Count(status)
-    for timer in timers[1:]:
-        timer.Count()
-
 #intro
 while input(f"Type \"start\" to start the first coding session. When it's time for a break, enter \"stop\"\nWhen you are finished for the day, enter \"done\"\n\n") != "start":
-    continue#system("cls") BUG: this only works for windows.
+    system("cls")
 
 commands = WordListener()
 
@@ -192,40 +189,44 @@ lstnr = keyboard.Listener(on_press=commands.WordInput)
 print("Beginning session!")
 lstnr.start()
 while True:
-    CountAll()
+    stopWatch.Count("Coding" if coding else "Taking a break")
+    sessionAlarm.Count()
+    
+    if eyeAlarm.Count():
+        #TODO: eyeAlarm isnt working. Probably because it is being reset too quickly.
+        eyeAlarm.Reset()
+        eyeAlarm = timers[3]
     
     if commands.WordFound("start"):
         if coding:
             continue
         coding = True
-        status = "Coding"
         ResetAll()
-        timers[1].alarmSound = "./Sounds/Stop_coding.mp3"
+        sessionAlarm = timers[1]
 
         if len(session.codeSessions) > 0:
-            session.AddSessionData(False, (timers[0].resultTime, timers[0].stringTime))
+            session.AddSessionData(False, (stopWatch.resultTime, stopWatch.stringTime))
 
     elif commands.WordFound("stop"):
         if not coding:
             continue
         coding = False
-        status = "Taking a break"
         ResetAll()
-        timers[1].alarmSound = "./Sounds/Start_coding.mp3"
+        sessionAlarm = timers[0]
 
-        session.AddSessionData(True, (timers[0].resultTime, timers[0].stringTime))
+        session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
 
     elif commands.WordFound("done"):
         lstnr.stop()
         if coding:
-            session.AddSessionData(True, (timers[0].resultTime, timers[0].stringTime))
+            session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
 
         ResetAll()
         
-        print(f"{session}Total time spent coding today: {timers[0].ReadableTime(session.totalSessionTime)}.")
+        print(f"{session}Total time spent coding today: {stopWatch.ReadableTime(session.totalSessionTime)}.")
 
         session.WriteToXML()
 
-        while timers[0].counter < 10:
-            timers[0].Count()
+        while stopWatch.counter < 10:
+            stopWatch.Count()
         quit()

@@ -20,11 +20,14 @@ class Timer:
             return False
 
     def Count(self):
+        """If a second has passed, increments the counter and returns True."""
         if self.SecondPassed():
             self.counter += 1
             return True
+        return False
 
     def Reset(self):
+        """Resets the counter to 0."""
         self.counter = 0
 
     def ReadableTime(self, seconds):
