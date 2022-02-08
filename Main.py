@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from pynput import keyboard
 from Stopwatch import Stopwatch
 from Alarm import Alarm
+#import threading
 
 class WordListener:
     """
@@ -164,16 +165,25 @@ class Session:
 
         self.tree.write(self.pathToXml)
 
+#a1 = threading.Thread(target=sessionAlarm.Tick)
 
-stopWatch = Stopwatch()
-sessionAlarm = Alarm("./Sounds/Start_coding.mp3")
+timers = [Stopwatch(), Alarm("./Sounds/Start_coding.mp3")]#, Alarm( , alarmTime=1200), Alarm( , alarmTime=20)] TODO: add 20 min alarm sound
 session = Session()
 coding = True
 status = "Coding"
 
+def ResetAll():
+    for timer in timers:
+        timer.Reset()
+
+def CountAll():
+    timers[0].Count(status)
+    for timer in timers[1:]:
+        timer.Count()
+
 #intro
 while input(f"Type \"start\" to start the first coding session. When it's time for a break, enter \"stop\"\nWhen you are finished for the day, enter \"done\"\n\n") != "start":
-    system("cls")
+    continue#system("cls") BUG: this only works for windows.
 
 commands = WordListener()
 
@@ -182,39 +192,40 @@ lstnr = keyboard.Listener(on_press=commands.WordInput)
 print("Beginning session!")
 lstnr.start()
 while True:
-    stopWatch.Count(status)
-
+    CountAll()
+    
     if commands.WordFound("start"):
         if coding:
             continue
         coding = True
         status = "Coding"
-        stopWatch.Reset()
-        print("Beginning session!")
+        ResetAll()
+        timers[1].alarmSound = "./Sounds/Stop_coding.mp3"
 
         if len(session.codeSessions) > 0:
-            session.AddSessionData(False, (stopWatch.resultTime, stopWatch.stringTime))
+            session.AddSessionData(False, (timers[0].resultTime, timers[0].stringTime))
 
     elif commands.WordFound("stop"):
         if not coding:
             continue
         coding = False
         status = "Taking a break"
-        stopWatch.Reset()
-    
-        session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
+        ResetAll()
+        timers[1].alarmSound = "./Sounds/Start_coding.mp3"
+
+        session.AddSessionData(True, (timers[0].resultTime, timers[0].stringTime))
 
     elif commands.WordFound("done"):
         lstnr.stop()
         if coding:
-            session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
+            session.AddSessionData(True, (timers[0].resultTime, timers[0].stringTime))
 
-        stopWatch.Reset()
+        ResetAll()
         
-        print(f"{session}Total time spent coding today: {stopWatch.ReadableTime(session.totalSessionTime)}.")
+        print(f"{session}Total time spent coding today: {timers[0].ReadableTime(session.totalSessionTime)}.")
 
         session.WriteToXML()
 
-        while stopWatch.counter < 10:
-            stopWatch.Count()
+        while timers[0].counter < 10:
+            timers[0].Count()
         quit()

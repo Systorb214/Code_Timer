@@ -3,7 +3,7 @@ from Timer import Timer
 
 class Stopwatch(Timer):
     
-    def __init__(self, status="Idle"):
+    def __init__(self):
         super().__init__()
         self.resultTime = 0
         self.stringTime = ""
@@ -15,7 +15,7 @@ class Stopwatch(Timer):
             if self.counter % 2 == 0:
                 dots = ".."
 
-            system("cls")
+            #system("cls")
             print(status + dots)
         
 

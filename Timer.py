@@ -6,15 +6,15 @@ class Timer:
     """
 
     def __init__(self):
-        self._past = time()
+        self.past = time()
         self.counter = 0
 
     def SecondPassed(self):
         """
         Returns true if a second has gone by.
         """
-        if time() - self._past > 1:
-            self._past = time()
+        if time() - self.past > 1:
+            self.past = time()
             return True
         else:
             return False
