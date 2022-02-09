@@ -191,11 +191,11 @@ lstnr.start()
 while True:
     stopWatch.Count("Coding" if coding else "Taking a break")
     sessionAlarm.Count()
-    
+
     if eyeAlarm.Count():
-        #TODO: eyeAlarm isnt working. Probably because it is being reset too quickly.
+
         eyeAlarm.Reset()
-        eyeAlarm = timers[3]
+        eyeAlarm = timers[3] if eyeAlarm == timers[2] else timers[2]
     
     if commands.WordFound("start"):
         if coding:
