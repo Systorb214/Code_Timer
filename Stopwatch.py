@@ -25,6 +25,6 @@ class Stopwatch(Timer):
         return self.counter % 60 == 0
 
     def Reset(self):
-        super().Reset()
         self.resultTime = self.counter
+        self.counter = 0
         self.stringTime = self.ReadableTime(self.resultTime)

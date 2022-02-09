@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ET
 from pynput import keyboard
 from Stopwatch import Stopwatch
 from Alarm import Alarm
-#import threading
 
 class WordListener:
     """
@@ -165,17 +164,16 @@ class Session:
 
         self.tree.write(self.pathToXml)
 
-#a1 = threading.Thread(target=sessionAlarm.Tick)
-
 session = Session()
-timers = [Alarm("./Sounds/Start_coding.mp3"), Alarm("./Sounds/Stop_coding.mp3"), Alarm("./Sounds/Look_away.mp3", alarmTime=1200), Alarm("./Sounds/Look_back.mp3", alarmTime=20)]
-eyeAlarm = timers[2]
-sessionAlarm = timers[1]
+alarms = [Alarm("./Sounds/Start_coding.mp3"), Alarm("./Sounds/Stop_coding.mp3"), Alarm("./Sounds/Look_away.mp3", alarmTime=1200), Alarm("./Sounds/Look_back.mp3", alarmTime=20)]
+eyeAlarm = alarms[2]
+sessionAlarm = alarms[1]
 stopWatch = Stopwatch()
 coding = True
 
 def ResetAll():
-    for timer in timers:
+    stopWatch.Reset()
+    for timer in alarms:
         timer.Reset()
 
 #intro
@@ -195,14 +193,14 @@ while True:
     if eyeAlarm.Count():
 
         eyeAlarm.Reset()
-        eyeAlarm = timers[3] if eyeAlarm == timers[2] else timers[2]
+        eyeAlarm = alarms[3] if eyeAlarm == alarms[2] else alarms[2]
     
     if commands.WordFound("start"):
         if coding:
             continue
         coding = True
         ResetAll()
-        sessionAlarm = timers[1]
+        sessionAlarm = alarms[1]
 
         if len(session.codeSessions) > 0:
             session.AddSessionData(False, (stopWatch.resultTime, stopWatch.stringTime))
@@ -212,7 +210,7 @@ while True:
             continue
         coding = False
         ResetAll()
-        sessionAlarm = timers[0]
+        sessionAlarm = alarms[0]
 
         session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
 
