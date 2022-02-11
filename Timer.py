@@ -77,6 +77,10 @@ class Timer:
             elif temp != "":
                 totalInt = int(temp)
                 break
+
+        #If I input anything over 60 it's an accident
+        if totalInt > 60 or totalInt < 0:
+            return 5
         
         minInt = totalInt * 60
         hourInt = totalInt * 3600
@@ -86,7 +90,4 @@ class Timer:
         if "hour" in stringTime:
             totalInt += hourInt
         
-        if totalInt != 0:
-            return totalInt
-        else:
-            print("Hint: type something like \"30 minutes\" or \"2 hours.\"")
+        return totalInt

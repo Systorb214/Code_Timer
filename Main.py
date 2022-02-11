@@ -11,23 +11,29 @@ class WordListener:
     """
     
     def __init__(self):
-        self.string = ""
+        self._stringBuffer = ""
         """The string that WordInput adds characters to."""
 
-        self.words = {"start" : False, "stop" : False, "done" : False}
-        """Words to listen for."""
+        self._string = ""
+        """the string variable's previous value."""
+
+    @property
+    def string(self):
+        """The last string that was typed."""
+        return self._string
+
+    def ResetString(self):
+        """Resets the string property."""
+        self._string = ""
     
     def WordInput(self, key=None):
         """
     Adds pressed keys to a string.\nIf enter is pressed and the string matches one of the word listener's words, set that word's value to true.
         """
         if key == keyboard.Key.enter:
-            print(self.string)
 
-            if self.string in self.words.keys():
-                self.words[self.string] = True
-
-            self.string = ""
+            self._string = self._stringBuffer
+            self._stringBuffer = ""
         else:
             try:
                 keyChar = key.char
@@ -37,20 +43,9 @@ class WordListener:
                 else:
                     keyChar = ''
 
-            self.string += keyChar
+            self._stringBuffer += keyChar
 
-    def WordFound(self, word):
-        """
-        Returns True if the command has been typed.
-        """
-        if word in self.words.keys():
-            if self.words[word] == True:
-                self.words[word] = False
-                return True
-
-            return False
-        else:
-            raise ValueError(word)
+            print(self._stringBuffer)
 
 class Session:
 
@@ -164,28 +159,28 @@ class Session:
 
         self.tree.write(self.pathToXml)
 
-session = Session()
-alarms = [Alarm("./Sounds/Start_coding.mp3"), Alarm("./Sounds/Stop_coding.mp3"), Alarm("./Sounds/Look_away.mp3", alarmTime=1200), Alarm("./Sounds/Look_back.mp3", alarmTime=20)]
-eyeAlarm = alarms[2]
-sessionAlarm = alarms[1]
-stopWatch = Stopwatch()
-coding = True
-
-def ResetAll():
-    stopWatch.Reset()
-    for timer in alarms:
-        timer.Reset()
-
-#intro
-while input(f"Type \"start\" to start the first coding session. When it's time for a break, enter \"stop\"\nWhen you are finished for the day, enter \"done\"\n\n") != "start":
-    system("cls")
 
 commands = WordListener()
-
 lstnr = keyboard.Listener(on_press=commands.WordInput)
 
-print("Beginning session!")
+stopWatch = Stopwatch()
+session = Session()
+sessionAlarm = Alarm("./Sounds/Stop_coding.mp3")
+eyeAlarms = [Alarm("./Sounds/Look_away.mp3", alarmTime=1200), Alarm("./Sounds/Look_back.mp3", alarmTime=20)]
+eyeAlarm = eyeAlarms[0]
+
 lstnr.start()
+print(f"Type \"/start\" to start the first coding session. When it's time for a break, enter \"/stop\"\nWhen you are finished for the day, enter \"/done\"\n\n")
+while "/start" not in commands.string:
+    continue
+
+t = stopWatch.GetTime(commands.string)
+if t != 0:
+    sessionAlarm.alarmTime = t
+
+commands.ResetString()
+coding = True
+
 while True:
     stopWatch.Count("Coding" if coding else "Taking a break")
     sessionAlarm.Count()
@@ -193,33 +188,41 @@ while True:
     if eyeAlarm.Count():
 
         eyeAlarm.Reset()
-        eyeAlarm = alarms[3] if eyeAlarm == alarms[2] else alarms[2]
+        eyeAlarm = eyeAlarms[1] if eyeAlarm == eyeAlarms[0] else eyeAlarms[0]
     
-    if commands.WordFound("start"):
-        if coding:
-            continue
+    if "/start" in commands.string and not coding:
         coding = True
-        ResetAll()
-        sessionAlarm = alarms[1]
+        stopWatch.Reset()
+
+        alarmTime = sessionAlarm.GetTime(commands.string)
+        if alarmTime == 0:
+            alarmTime = 3600
+        sessionAlarm = Alarm("./Sounds/Stop_coding.mp3", alarmTime=alarmTime)
+
+        commands.ResetString()
 
         if len(session.codeSessions) > 0:
             session.AddSessionData(False, (stopWatch.resultTime, stopWatch.stringTime))
 
-    elif commands.WordFound("stop"):
-        if not coding:
-            continue
+    elif "/stop" in commands.string and coding:
         coding = False
-        ResetAll()
-        sessionAlarm = alarms[0]
+        stopWatch.Reset()
+
+        alarmTime = sessionAlarm.GetTime(commands.string)
+        if alarmTime == 0:
+            alarmTime = 900
+        sessionAlarm = Alarm("./Sounds/Start_coding.mp3", alarmTime=alarmTime)
+
+        commands.ResetString()
 
         session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
 
-    elif commands.WordFound("done"):
+    elif "/done" in commands.string:
         lstnr.stop()
         if coding:
             session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
 
-        ResetAll()
+        stopWatch.Reset()
         
         print(f"{session}Total time spent coding today: {stopWatch.ReadableTime(session.totalSessionTime)}.")
 

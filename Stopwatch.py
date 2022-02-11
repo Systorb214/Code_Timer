@@ -11,16 +11,13 @@ class Stopwatch(Timer):
     def Count(self, status=""):
         
         if super().Count() and status != "":
-            dots = "."
-            if self.counter % 2 == 0:
-                dots = ".."
 
-            system("cls")
-            print(status + dots)
+            status += (". " if self.counter % 2 == 0 else "..")
+
+            print(status, end='\r')
             return True
         return False
         
-
     def MinutePassed(self):
         return self.counter % 60 == 0
 
