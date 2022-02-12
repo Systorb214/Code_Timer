@@ -1,10 +1,11 @@
+from re import L
 from time import gmtime, strftime
 from os import system, path, mkdir
 from win32gui import GetWindowText, GetForegroundWindow
 import xml.etree.ElementTree as ET
 from pynput import keyboard
-from Stopwatch import Stopwatch
-from Alarm import Alarm
+from Timer import Timer
+from playsound import playsound
 
 class WordListener:
     """
@@ -30,7 +31,7 @@ class WordListener:
     
     def WordInput(self, key=None):
         """
-    Adds pressed keys to a string.\nIf enter is pressed and the string matches one of the word listener's words, set that word's value to true.
+    Adds pressed keys to a string.\nIf enter is pressed, set the string property.
         """
         if GetWindowText(GetForegroundWindow()) != WordListener.consoleWindow:
             return
@@ -49,9 +50,9 @@ class WordListener:
                 else:
                     keyChar = ''
 
-            self._stringBuffer += keyChar
+            print(keyChar, end="")
 
-            print(self._stringBuffer)
+            self._stringBuffer += keyChar
 
 class Session:
 
@@ -169,71 +170,90 @@ class Session:
 commands = WordListener()
 lstnr = keyboard.Listener(on_press=commands.WordInput)
 
-stopWatch = Stopwatch()
+timer = Timer()
 session = Session()
-sessionAlarm = Alarm("./Sounds/Stop_coding.mp3")
-eyeAlarms = [Alarm("./Sounds/Look_away.mp3", alarmTime=1200), Alarm("./Sounds/Look_back.mp3", alarmTime=20)]
-eyeAlarm = eyeAlarms[0]
+
+alarm_sounds = ["./Sounds/Start_Coding.mp3", "./Sounds/Stop_coding.mp3", "./Sounds/Look_away.mp3", "./Sounds/Look_back.mp3"]
+alarm_times = [3600, 900, 1200, 20]
+
 
 lstnr.start()
-print(f"Type \"/start\" to start the first coding session. When it's time for a break, enter \"/stop\"\nWhen you are finished for the day, enter \"/done\"\n\n")
-while "/start" not in commands.string:
+print(f"Type \"start\" to start the first coding session. When it's time for a break, enter \"stop\"\nWhen you are finished for the day, enter \"done\"\n\n")
+while "start" not in commands.string:
     continue
 
-t = stopWatch.GetTime(commands.string)
+t = timer.GetTime(commands.string)
 if t != 0:
-    sessionAlarm.alarmTime = t
+    alarm_times[0] = t
+del t
 
 commands.ResetString()
 coding = True
+looking_away = False
 
 while True:
-    stopWatch.Count("Coding" if coding else "Taking a break")
-    sessionAlarm.Count()
+    if not timer.Count():
+        continue
+    print("\r" + ("coding" if coding else "taking a break") + (". " if timer.counter % 2 == 0 else ".."), end="")
+    print(timer.counter)
 
-    if eyeAlarm.Count():
-
-        eyeAlarm.Reset()
-        eyeAlarm = eyeAlarms[1] if eyeAlarm == eyeAlarms[0] else eyeAlarms[0]
+    if not looking_away and timer.counter % alarm_times[2] == 0:
+        looking_away = True
+        playsound(alarm_sounds[2])
     
-    if "/start" in commands.string and not coding:
-        coding = True
-        stopWatch.Reset()
+    elif looking_away and timer.counter % alarm_times[3] == 0:
+        looking_away = False
+        playsound(alarm_sounds[3])
 
-        alarmTime = sessionAlarm.GetTime(commands.string)
-        if alarmTime == 0:
-            alarmTime = 3600
-        sessionAlarm = Alarm("./Sounds/Stop_coding.mp3", alarmTime=alarmTime)
+    if not coding:
+        if timer.counter % alarm_times[0] == 0:
+            playsound(alarm_sounds[0])
+            alarm_times[0] = 5
+        
+        if "start" in commands.string:
+            coding = True
 
-        commands.ResetString()
+            alarm_times[0] = timer.GetTime(commands.string)
+            if alarm_times[0] == 0:
+                alarm_times[0] = 3600
 
-        if len(session.codeSessions) > 0:
-            session.AddSessionData(False, (stopWatch.resultTime, stopWatch.stringTime))
+            commands.ResetString()
 
-    elif "/stop" in commands.string and coding:
-        coding = False
-        stopWatch.Reset()
+            result_time = timer.counter
+            timer.Reset()
 
-        alarmTime = sessionAlarm.GetTime(commands.string)
-        if alarmTime == 0:
-            alarmTime = 900
-        sessionAlarm = Alarm("./Sounds/Start_coding.mp3", alarmTime=alarmTime)
+            if len(session.codeSessions) > 0:
+                session.AddSessionData(False, (result_time, timer.ReadableTime(result_time)))
 
-        commands.ResetString()
+    else:
+        if timer.counter % alarm_times[1] == 0:
+            playsound(alarm_sounds[1])
+            alarm_times[1] = 5
 
-        session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
+        if "stop" in commands.string:
+            coding = False
 
-    elif "/done" in commands.string:
+            alarm_times[1] = timer.GetTime(commands.string)
+            if alarm_times[1] == 0:
+                alarm_times[1] = 900
+
+            commands.ResetString()
+
+            result_time = timer.counter
+            timer.Reset()
+            session.AddSessionData(True, (result_time, timer.ReadableTime(result_time)))
+
+    if "done" in commands.string:
         lstnr.stop()
         if coding:
-            session.AddSessionData(True, (stopWatch.resultTime, stopWatch.stringTime))
+            session.AddSessionData(True, (result_time, timer.ReadableTime(result_time)))
 
-        stopWatch.Reset()
+        timer.Reset()
         
-        print(f"{session}Total time spent coding today: {stopWatch.ReadableTime(session.totalSessionTime)}.")
+        print(f"{session}Total time spent coding today: {timer.ReadableTime(session.totalSessionTime)}.")
 
         session.WriteToXML()
 
-        while stopWatch.counter < 10:
-            stopWatch.Count()
+        while timer.counter < 10:
+            timer.Count()
         quit()
