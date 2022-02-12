@@ -37,8 +37,8 @@ class WordListener:
             return
         
         if key == keyboard.Key.enter:
+            print(self._stringBuffer)
 
-            system("cls")
             self._string = self._stringBuffer
             self._stringBuffer = ""
         else:
@@ -49,8 +49,6 @@ class WordListener:
                     keyChar = ' '
                 else:
                     keyChar = ''
-
-            print(keyChar, end="")
 
             self._stringBuffer += keyChar
 
@@ -189,13 +187,13 @@ del t
 
 commands.ResetString()
 coding = True
+status = "coding"
 looking_away = False
 
 while True:
     if not timer.Count():
         continue
-    print("\r" + ("coding" if coding else "taking a break") + (". " if timer.counter % 2 == 0 else ".."), end="")
-    print(timer.counter)
+    print("\r" + status + (". " if timer.counter % 2 == 0 else ".."), end="")
 
     if not looking_away and timer.counter % alarm_times[2] == 0:
         looking_away = True
@@ -211,7 +209,9 @@ while True:
             alarm_times[0] = 5
         
         if "start" in commands.string:
+            system("cls")
             coding = True
+            status = "coding"
 
             alarm_times[0] = timer.GetTime(commands.string)
             if alarm_times[0] == 0:
@@ -231,7 +231,9 @@ while True:
             alarm_times[1] = 5
 
         if "stop" in commands.string:
+            system("cls")
             coding = False
+            status = "taking a break"
 
             alarm_times[1] = timer.GetTime(commands.string)
             if alarm_times[1] == 0:
