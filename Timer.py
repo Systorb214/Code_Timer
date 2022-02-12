@@ -35,11 +35,11 @@ class Timer:
         seconds = int(seconds)
         minutes = 0
         hours = 0
-        while seconds > 60:
+        while seconds >= 60:
             seconds -= 60
             minutes += 1
             
-            while minutes > 60:
+            while minutes >= 60:
                 minutes -= 60
                 hours += 1
 
@@ -79,7 +79,7 @@ class Timer:
                 break
 
         #If I input anything over 60 it's an accident
-        if totalInt > 60 or totalInt < 0:
+        if totalInt >= 60 or totalInt < 0:
             return 5
         
         minInt = totalInt * 60
