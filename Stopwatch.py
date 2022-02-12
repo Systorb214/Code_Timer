@@ -1,4 +1,3 @@
-from os import system
 from Timer import Timer
 
 class Stopwatch(Timer):

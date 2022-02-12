@@ -1,5 +1,6 @@
 from time import gmtime, strftime
 from os import system, path, mkdir
+from win32gui import GetWindowText, GetForegroundWindow
 import xml.etree.ElementTree as ET
 from pynput import keyboard
 from Stopwatch import Stopwatch
@@ -9,6 +10,7 @@ class WordListener:
     """
     Provides word functionality for the keyboard listener.
     """
+    consoleWindow = GetWindowText(GetForegroundWindow())
     
     def __init__(self):
         self._stringBuffer = ""
@@ -30,8 +32,12 @@ class WordListener:
         """
     Adds pressed keys to a string.\nIf enter is pressed and the string matches one of the word listener's words, set that word's value to true.
         """
+        if GetWindowText(GetForegroundWindow()) != WordListener.consoleWindow:
+            return
+        
         if key == keyboard.Key.enter:
 
+            system("cls")
             self._string = self._stringBuffer
             self._stringBuffer = ""
         else:
