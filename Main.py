@@ -1,6 +1,7 @@
 from re import L
 from time import gmtime, strftime
 from os import system, path, mkdir
+import time
 from win32gui import GetWindowText, GetForegroundWindow
 import xml.etree.ElementTree as ET
 from pynput import keyboard
@@ -178,7 +179,8 @@ alarm_times = [3600, 900, 1200, 20]
 lstnr.start()
 print(f"Type \"start\" to start the first coding session. When it's time for a break, enter \"stop\"\nWhen you are finished for the day, enter \"done\"\n\n")
 while "start" not in commands.string:
-    continue
+    timer.Count()
+timer.Reset()
 
 t = timer.GetTime(commands.string)
 if t != 0:
@@ -191,8 +193,7 @@ status = "coding"
 looking_away = False
 
 while True:
-    if not timer.Count():
-        continue
+    timer.Count()
     print("\r" + status + (". " if timer.counter % 2 == 0 else ".."), end="")
 
     if not looking_away and timer.counter % alarm_times[2] == 0:

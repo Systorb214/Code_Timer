@@ -1,4 +1,4 @@
-from time import time
+from time import time, sleep
 
 class Timer:
     """
@@ -9,22 +9,10 @@ class Timer:
         self.past = time()
         self.counter = 0
 
-    def SecondPassed(self):
-        """
-        Returns true if a second has gone by.
-        """
-        if time() - self.past > 1:
-            self.past = time()
-            return True
-        else:
-            return False
-
     def Count(self):
-        """If a second has passed, increments the counter and returns True."""
-        if self.SecondPassed():
-            self.counter += 1
-            return True
-        return False
+        """Increments a counter and waits a second."""
+        self.counter += 1
+        sleep(1)
 
     def Reset(self):
         """Resets the counter to 0."""
