@@ -173,7 +173,7 @@ timer = Timer()
 session = Session()
 
 alarm_sounds = ["./Sounds/Start_Coding.mp3", "./Sounds/Stop_coding.mp3", "./Sounds/Look_away.mp3", "./Sounds/Look_back.mp3"]
-alarm_times = [3600, 900, 1200, 20]
+alarm_times = [900, 3600, 1200, 20]
 
 
 lstnr.start()
@@ -204,7 +204,7 @@ while True:
         looking_away = False
         playsound(alarm_sounds[3])
 
-    if not coding:
+    if coding == False:
         if timer.counter % alarm_times[0] == 0:
             playsound(alarm_sounds[0])
             alarm_times[0] = 5
@@ -226,7 +226,7 @@ while True:
             if len(session.codeSessions) > 0:
                 session.AddSessionData(False, (result_time, timer.ReadableTime(result_time)))
 
-    else:
+    elif coding == True:
         if timer.counter % alarm_times[1] == 0:
             playsound(alarm_sounds[1])
             alarm_times[1] = 5
