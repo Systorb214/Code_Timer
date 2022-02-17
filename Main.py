@@ -1,4 +1,3 @@
-from re import L
 from time import gmtime, strftime
 from os import system, path, mkdir
 import time

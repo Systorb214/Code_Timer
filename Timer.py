@@ -11,7 +11,8 @@ class Timer:
 
     def Count(self):
         """Increments a counter and waits a second."""
-        self.counter += 1
+        self.counter += int(time() - self.past)
+        self.past = time()
         sleep(1)
 
     def Reset(self):
