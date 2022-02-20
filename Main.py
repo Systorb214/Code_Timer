@@ -212,10 +212,11 @@ while True:
             system("cls")
             coding = True
             status = "coding"
+            looking_away = False
 
-            alarm_times[0] = timer.GetTime(commands.string)
-            if alarm_times[0] == 0:
-                alarm_times[0] = 3600
+            alarm_times[1] = timer.GetTime(commands.string)
+            if alarm_times[1] == 0:
+                alarm_times[1] = 3600
 
             commands.ResetString()
 
@@ -234,10 +235,11 @@ while True:
             system("cls")
             coding = False
             status = "taking a break"
+            looking_away = False
 
-            alarm_times[1] = timer.GetTime(commands.string)
-            if alarm_times[1] == 0:
-                alarm_times[1] = 900
+            alarm_times[0] = timer.GetTime(commands.string)
+            if alarm_times[0] == 0:
+                alarm_times[0] = 900
 
             commands.ResetString()
 
