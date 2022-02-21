@@ -194,14 +194,6 @@ while True:
     timer.Count()
     print("\r" + status + (". " if timer.counter % 2 == 0 else ".."), end="")
 
-    if not looking_away and timer.counter % alarm_times[2] == 0:
-        looking_away = True
-        playsound(alarm_sounds[2])
-    
-    elif looking_away and timer.counter % alarm_times[3] == 0:
-        looking_away = False
-        playsound(alarm_sounds[3])
-
     if coding == False:
         if timer.counter % alarm_times[0] == 0:
             playsound(alarm_sounds[0])
@@ -229,6 +221,14 @@ while True:
         if timer.counter % alarm_times[1] == 0:
             playsound(alarm_sounds[1])
             alarm_times[1] = 5
+
+        elif not looking_away and timer.counter % alarm_times[2] == 0:
+            looking_away = True
+            playsound(alarm_sounds[2])
+    
+        elif looking_away and timer.counter % alarm_times[3] == 0:
+            looking_away = False
+            playsound(alarm_sounds[3])
 
         if "stop" in commands.string:
             system("cls")
