@@ -187,12 +187,11 @@ del t
 
 commands.ResetString()
 coding = True
-status = "coding"
 looking_away = False
 
 while True:
     timer.Count()
-    print("\r" + status + (". " if timer.counter % 2 == 0 else ".."), end="")
+    print("\r" + ("Coded" if coding else "Took a break") + " for " + timer.ReadableTime(timer.counter), end="")
 
     if coding == False:
         if timer.counter % alarm_times[0] == 0:
@@ -202,8 +201,6 @@ while True:
         if "start" in commands.string:
             system("cls")
             coding = True
-            status = "coding"
-            looking_away = False
 
             alarm_times[1] = timer.GetTime(commands.string)
             if alarm_times[1] == 0:
@@ -233,7 +230,6 @@ while True:
         if "stop" in commands.string:
             system("cls")
             coding = False
-            status = "taking a break"
             looking_away = False
 
             alarm_times[0] = timer.GetTime(commands.string)
