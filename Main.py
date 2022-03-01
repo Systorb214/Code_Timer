@@ -6,11 +6,13 @@ from pynput import keyboard
 from Timer import Timer
 from playsound import playsound
 
+wName = "Code Timer"
+system("title " + wName)
+
 class WordListener:
     """
     Provides word functionality for the keyboard listener.
     """
-    consoleWindow = "C:\\Windows\\py.exe"
     
     def __init__(self):
         self._stringBuffer = ""
@@ -32,7 +34,7 @@ class WordListener:
         """
     Adds pressed keys to a string.\nIf enter is pressed, set the string property.
         """
-        if GetWindowText(GetForegroundWindow()) != WordListener.consoleWindow:
+        if GetWindowText(GetForegroundWindow()) != wName:
             return
         
         if key == keyboard.Key.enter:
@@ -182,7 +184,7 @@ timer.Reset()
 
 t = timer.GetTime(commands.string)
 if t != 0:
-    alarm_times[0] = t
+    alarm_times[1] = t
 del t
 
 commands.ResetString()

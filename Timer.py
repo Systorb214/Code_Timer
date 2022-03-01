@@ -78,5 +78,5 @@ class Timer:
             totalInt += minInt
         if "hour" in stringTime:
             totalInt += hourInt
-        
+            
         return totalInt
