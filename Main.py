@@ -193,7 +193,8 @@ looking_away = False
 
 while True:
     timer.Count()
-    print("\r" + ("Coded" if coding else "Took a break") + " for " + timer.ReadableTime(timer.counter), end="")
+    system("cls")
+    print(("Coded" if coding else "Took a break") + " for " + timer.ReadableTime(timer.counter))
 
     if coding == False:
         if timer.counter % alarm_times[0] == 0:

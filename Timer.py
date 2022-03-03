@@ -17,7 +17,7 @@ class Timer:
 
     def Reset(self):
         """Resets the counter to 0."""
-        self.counter = 0
+        self.counter = 60
 
     def ReadableTime(self, seconds):
 
@@ -33,21 +33,33 @@ class Timer:
                 hours += 1
 
         info = ""
+        s = "s"
         
         if hours > 0:
 
-            info += f"{hours} hours"
+            info += f"{hours} hour"
+            if hours != 1:
+                info += s
 
             if minutes > 0:
-                info += f" and {minutes} minutes"
+                info += f" and {minutes} minute"
+                if minutes != 1:
+                    info += s
         elif minutes > 0:
 
-            info += f"{minutes} minutes"
+            info += f"{minutes} minute"
+
+            if minutes != 1:
+                info += s
 
             if seconds > 0:
-                info += f" and {seconds} seconds"
+                info += f" and {seconds} second"
+                if seconds != 1:
+                    info += s
         else:
-            info += f"{seconds} seconds"
+            info += f"{seconds} second"
+            if seconds != 1:
+                info += s
 
         return info
 
